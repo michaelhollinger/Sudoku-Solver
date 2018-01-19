@@ -47,13 +47,13 @@ public class sudoku {
 					}
 				}
 			}
-			System.out.println();
+			System.out.println('\n');
 		}
 
 		//if a solution does not exist.
 		else
 		{
-			System.out.println("No solution possible." + '\n');
+			System.out.println("No solution possible." + '\n' + '\n');
 		}
 		
 		//increment counters
@@ -79,7 +79,7 @@ public class sudoku {
 		gridList.add(grid);
 	}
 
-	//Recursive backtracking algorithm to solve the grid
+	//Recursive, deterministic algorithm to solve the grid.
 	public static boolean solveGrid(int[][] grid)
 	{	
 
@@ -96,20 +96,19 @@ public class sudoku {
 				{
 					for(int num = 1; num <= 9; num++)
 					{
-						//check if it's valid
+						//check if num is valid in current grid
 						if(valid(grid, i, j, num))
 						{
 
-						//assign int 1 <= n <= 10
+						//if so, reassign num to current cell
 						grid[i][j] = num;
-						
-						//if it's valid, continue
+					
+						//recursively solve grid
 						if(solveGrid(grid))
 						{
 							return true;
 						}
 
-						//if not, try again
 						else
 						{
 							grid[i][j] = 0;
@@ -123,51 +122,57 @@ public class sudoku {
 		return true;
 }
 
-//returns true if all 3 conditions are valid
-public static boolean valid(int[][] grid, int row, int col, int n)
+//checks each index of current 3x3 box, modulo 3
+public static boolean box(int[][] grid, int row, int col, int n)
 {
-	//initialize all 3 conditions
-	boolean rowValid = false;
-	boolean columnValid = false;
-	boolean boxValid = false;
-
-	//checks each index of current row
-	for(int j = 0; j < GRID_SIZE; j++)
-	{
-		if(grid[j][row] == n)
-		{
-			rowValid = true;
-		}
-	}
-
-	//checks each index of current column
-	for(int i = 0; i < GRID_SIZE; i++)
-	{
-		if(grid[col][i] == n)
-		{
-			columnValid = true;
-		}
-	}
-
-	//checks each index of current 3x3 box, modulo 3
-	//reassign row and column values to prevent out of bounds array index
-	int boxRow = row - row%3;
-	int boxCol = col - col%3;
+	row = row - row % 3;
+	col = col - col % 3;
 
 	for(int i = 0; i < 3; i++)
 	{
 		for(int j = 0; j < 3; j++)
 		{
-			if(grid[i + boxRow][j + boxCol] == n)
+			if(grid[i + row][j + col] == n)
 			{
-				boxValid = true;
+				return true;
 			}
 
 		}
+	}
+		return false;
+}
+
+//checks each index of current row
+public static boolean row(int[][] grid, int row, int n)
+{	
+	for(int j = 0; j < GRID_SIZE; j++)
+	{
+		if(grid[j][row] == n)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+//checks each index of current col
+public static boolean col(int[][] grid, int col, int n)
+{
+	//column
+	for(int i = 0; i < GRID_SIZE; i++)
+	{
+		if(grid[col][i] == n)
+		{
+			return true;
+		}
 	}	
-	
-	//if all 3 conditions are valid, return true
-	if(!rowValid && !columnValid && !boxValid)
+	return false;
+}
+
+//if all 3 conditions are met, return true
+public static boolean valid(int[][] grid, int row, int col, int n)
+{
+	if(!col(grid, row, n) && !row(grid, col, n) && !box(grid, row, col, n))
 	{
 		return true;
 	}	
